@@ -2,11 +2,23 @@
 #include "config.h"
 #include "memory/memory.h"
 #include "kernel.h"
+#include "io/io.h"
 
 extern void idt_load(struct idtr_desc* ptr);
+extern void int21h();
+extern void no_interrupt();
 
 struct idt_desc idt_descriptors[ORCAOS_TOTAL_INTERRUPTS];
 struct idtr_desc idtr_descriptor;
+
+void int21h_handler() {
+    print("Keyboard pressed!\n");
+    outb(0x20, 0x20);
+}
+
+void no_interrupt_handler() {
+    outb(0x20, 0x20);
+}
 
 void int0() {
     print("Divide by zero error\n");
@@ -25,6 +37,14 @@ void idt_init() {
     memset(idt_descriptors, 0, sizeof(idt_descriptors));
     idtr_descriptor.limit = sizeof(idt_descriptors) - 1;
     idtr_descriptor.base = (uint32_t) idt_descriptors;
+
+    for (int i = 0; i < ORCAOS_TOTAL_INTERRUPTS; i++) {
+        idt_set(i, no_interrupt);
+    }
+    
+    idt_set(0x21, int21h);
     idt_set(0, int0);
+
     idt_load(&idtr_descriptor);
 }
+

@@ -1,6 +1,7 @@
-FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o
+FILES = ./build/kernel.asm.o ./build/kernel.o ./build/idt/idt.asm.o ./build/idt/idt.o ./build/memory/memory.o ./build/io/io.asm.o ./build/memory/heap/heap.o ./build/memory/kheap.o
 INCLUDES = -I./src
-FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-paramter -nostdlib -nostartfiles -nodefaultlibs -nodefaultlibs -Wall -O0 -Iinc
+FLAGS = -g -ffreestanding -falign-jumps -falign-functions -falign-labels -falign-loops -fstrength-reduce -fomit-frame-pointer -finline-functions -Wno-unused-functions -fno-builtin -Werror -Wno-unused-label -Wno-cpp -Wno-unused-paramete -nostdlib -nostartfiles -nodefaultlibs -nodefaultlibs -Wall -O0 -Iinc
+CC = i686-elf-gcc
 
 all: ./bin/boot.bin ./bin/kernel.bin
 	rm -rf ./bin/os.bin
@@ -32,6 +33,12 @@ all: ./bin/boot.bin ./bin/kernel.bin
 
 ./build/io/io.asm.o: ./src/io/io.asm
 	nasm -f elf -g ./src/io/io.asm -o ./build/io/io.asm.o
+
+./build/memory/heap/heap.o: ./src/memory/heap/heap.c
+	$(CC) $(INCLUDES) -I./src/memory/heap $(FLAGS) -std=gnu99 -c ./src/memory/heap/heap.c -o ./build/memory/heap/heap.o
+
+./build/memory/kheap.o: ./src/memory/kheap.c
+	$(CC) $(INCLUDES) -I./src/memory $(FLAGS) -std=gnu99 -c ./src/memory/kheap.c -o ./build/memory/kheap.o
 
 clean:
 	rm -rf ./bin/boot.bin
